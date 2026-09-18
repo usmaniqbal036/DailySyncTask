@@ -32,10 +32,10 @@ const Login = () => {
 
       <form onSubmit={handleSubmit}>
         <label>Email</label>
-        <input type="email" name="email" value={form.email} onChange={handleChange} />
+        <input type="email" name="email" value={form.email} onChange={handleChange} autoComplete="off" />
 
         <label>Password</label>
-        <input type="password" name="password" value={form.password} onChange={handleChange} />
+        <input type="password" name="password" value={form.password} onChange={handleChange} autoComplete="off" />
 
         <button type="submit" className="btn-primary btn-full">Log In</button>
       </form>

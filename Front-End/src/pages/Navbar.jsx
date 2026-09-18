@@ -13,7 +13,7 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="navbar-brand">Task Manager</Link>
+      <Link to="/" className="navbar-brand">Daily Task</Link>
       <div className="navbar-links">
         {user ? (
           <>

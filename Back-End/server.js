@@ -1,5 +1,4 @@
 import express from 'express';
-import dns from 'dns';
 import dotenv from 'dotenv';
 import cors from 'cors';
 dotenv.config();
@@ -8,23 +7,31 @@ import config from './config/config.js';
 import authRoutes from './routes/authRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 
-dns.setServers(["8.8.8.8", "8.8.4.4"]);
 const app = express();
 
-const startServer = async () => {
-  await connectDB();
+app.use(cors({ origin: process.env.CLIENT_URL }));
+app.use(express.json());
 
-  app.use(cors({ origin: process.env.CLIENT_URL }));
-  app.use(express.json());
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
 
-  app.use("/api/auth", authRoutes);
-  app.use("/api/tasks", taskRoutes);
+app.get("/", (req, res) => res.send("TaskFlow API is running"));
 
-  app.get("/", (req, res) => res.send("TaskFlow API is running"));
+// Serverless-safe DB connection — pehli request par connect, phir cached
+let isConnected = false;
+app.use(async (req, res, next) => {
+  if (!isConnected) {
+    await connectDB();
+    isConnected = true;
+  }
+  next();
+});
 
+// Sirf local development ke liye — Vercel par yeh skip ho jayega
+if (process.env.NODE_ENV !== 'production') {
   app.listen(config.port, () => {
     console.log(`${config.appName} is running on port ${config.port}`);
   });
-};
+}
 
-startServer();
+export default app;

@@ -12,12 +12,7 @@ const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL }));
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/tasks", taskRoutes);
-
-app.get("/", (req, res) => res.send("TaskFlow API is running"));
-
-// Serverless-safe DB connection — pehli request par connect, phir cached
+// Database connect PEHLE — routes se pehle hona zaroori hai
 let isConnected = false;
 app.use(async (req, res, next) => {
   if (!isConnected) {
@@ -27,7 +22,12 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Sirf local development ke liye — Vercel par yeh skip ho jayega
+// Ab routes
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
+
+app.get("/", (req, res) => res.send("TaskFlow API is running"));
+
 if (process.env.NODE_ENV !== 'production') {
   app.listen(config.port, () => {
     console.log(`${config.appName} is running on port ${config.port}`);

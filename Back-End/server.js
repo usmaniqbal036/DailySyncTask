@@ -15,13 +15,13 @@ app.use(express.json());
 // Database connect PEHLE — routes se pehle hona zaroori hai
 let isConnected = false;
 app.use(async (req, res, next) => {
-  if (!isConnected) {
+  try {
     await connectDB();
-    isConnected = true;
+    next();
+  } catch (err) {
+    res.status(500).json({ message: "Database connection failed" });
   }
-  next();
 });
-
 // Ab routes
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);

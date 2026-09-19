@@ -9,11 +9,26 @@ import taskRoutes from './routes/taskRoutes.js';
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL }));
+// ✅ CORS setup — frontend URL allow + credentials
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "https://daily-task-syncs.vercel.app",
+  "http://localhost:5173",
+].filter(Boolean);
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
 
-// Database connect PEHLE — routes se pehle hona zaroori hai
-let isConnected = false;
 app.use(async (req, res, next) => {
   try {
     await connectDB();
@@ -22,6 +37,7 @@ app.use(async (req, res, next) => {
     res.status(500).json({ message: "Database connection failed" });
   }
 });
+
 // Ab routes
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
